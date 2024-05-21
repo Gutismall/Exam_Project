@@ -1,0 +1,42 @@
+3
+C
+7
+How much is 1 + 1 ?
+Easy
+47
+false
+2
+true
+56
+false
+11
+false
+More than one is correct
+false
+All wrong
+false
+1000
+false
+
+O
+What is my name ?
+Easy
+Ari Guterman
+
+C
+6
+how much is 10 * 10 ?
+Easy
+1000
+true
+47
+false
+2
+false
+11
+false
+All wrong
+false
+More than one is correct
+false
+
