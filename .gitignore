@@ -2,7 +2,7 @@
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-.idea
+.ideaupdate
 Exam_Project.iml
 ### Eclipse ###
 .apt_generated
