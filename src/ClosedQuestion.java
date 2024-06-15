@@ -7,94 +7,72 @@ import java.io.Serializable;
 import java.util.*;
 
 public class ClosedQuestion extends Question implements Cloneable, Serializable {
-    protected HashSet<Answer> answers = new HashSet<>();
+    protected HashMap<Answer,Boolean> answers;
 
-    public ClosedQuestion(String question, Difficulty difficulty, HashSet answers) throws Exception {
+    public ClosedQuestion(String question, Difficulty difficulty, HashMap answers) throws Exception {
         super(question, difficulty);
-        if (answers.size() > 8 || answers.size() < 4) {
-            throw new Exception("Number of Answers invalid,must be 4-8 answers");
-        } else {
-            this.answers = answers;
-            Answer moreThanOneCorrect = new Answer("More than one is correct");
-            Answer allWrong = new Answer("All wrong");
-            moreThenOneCorrect(moreThanOneCorrect,allWrong);
-            noCorrectAnswers(moreThanOneCorrect,allWrong);
+        this.answers = answers;
         }
+    
+
+//    public ClosedQuestion(Scanner s, int numOfAnswers, String question, Difficulty difficulty) throws FileNotFoundException {
+//        super(question, difficulty);
+//        this.answers = s.next();
+//        this.correctAns = new boolean[0];
+//        for (int i = 0; i < numOfAnswers; i++) {
+//            Answer ans = new Answer(s.nextLine());
+//            boolean isCorrect = s.nextBoolean();
+//            addAnswer(ans, isCorrect);
+//            s.nextLine();
+//        }
+//    }
+//    public ClosedQuestion(ClosedQuestion other){
+//        super(other.question, other.difficultyOfQuestion);
+//        this.answers = new HashMap<>();
+//        for (Map.Entry<Answer,Boolean> answer: other.getAnswer().entrySet()){
+//            this.answers.put()
+//        }
+//    }
+    public HashMap<Answer,Boolean> getAnswer() {
+        return this.answers;
     }
 
-    public ClosedQuestion(Scanner s, int numOfAnswers, String question, Difficulty difficulty) throws FileNotFoundException {
-        super(question, difficulty);
-        this.answers = new Answer[0];
-        this.correctAns = new boolean[0];
-        for (int i = 0; i < numOfAnswers; i++) {
-            Answer ans = new Answer(s.nextLine());
-            boolean isCorrect = s.nextBoolean();
-            addAnswer(ans, isCorrect);
-            s.nextLine();
-        }
-    }
-    public ClosedQuestion(ClosedQuestion other){
-        super(other.question, other.difficultyOfQuestion);
-        this.answers = new HashSet<>();
-        for (Answer ans : other.getAnswer()){
-            this.answers.add(new Answer(ans));
-        }
-    }
-    public HashSet<Answer> getAnswer() {
-        return answers;
-    }
-
-    public void setAnswer(HashSet<Answer> answers) {
+    public void setAnswer(HashMap<Answer,Boolean> answers) {
         this.answers = answers;
     }
-    public void moreThenOneCorrect() {
+    public void moreThenOneCorrectOrNoCorrect() {
         int counter = 0;
-
-        for (Answer ans : this.answers) {
-            if (ans.isCorrect() == true)
+        for (boolean correct : this.answers.values()) {
+            if (correct == true)
                 counter++;
         }
-        if (counter >= 2) {
-            addAnswerToQuestion(new Answer("More then one is Correct",true));
+        if (counter >= 2 || counter == 0) {
+            for (Map.Entry<Answer, Boolean> entry : answers.entrySet()) {
+                entry.setValue(false);
+            }
+            if (counter >= 2){
+                this.answers.put(new Answer("More the one correct"),true);
+            }
+            else
+                this.answers.put(new Answer("No answer is correct"),true);
         }
     }
-
-    public void noCorrectAnswers(Answer moreThanOneCorrect,Answer allWrong) {
-        for (int i = 0; i < this.answers.length; i++) {
-            if (this.correctAns[i] == true)
-                return;
-        }
-        boolean[] updatedCorrect = new boolean[this.correctAns.length];
-        for (int j = 0; j < updatedCorrect.length; j++) {
-            updatedCorrect[j] = false;
-        }
-        setCorrect(updatedCorrect);
-        addAnswer(allWrong, true);
-        addAnswer(moreThanOneCorrect, false);
-    }
+    
     @Override
     public String toString() {
         String res = super.toString();
-        for (Answer ans : this.answers){
+        for (Answer ans : this.answers.keySet()){
             res += ans.toString();
         }
         return res;
     }
-    
-    @Override
-    public void addAnswerToQuestion(Answer answer) {
-        this.answers.add(answer);
-    }
-    
-    public void removeAnswerFromQuestion(int indexOfAnswer) {
-        Iterator<Answer> answerIterator = this.answers.iterator();
-        for (int i = 0; i < indexOfAnswer - 1; i++) {
-            answerIterator.next();
-        }
-        this.answers.remove(answerIterator.next());
-    }
-    
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+    
+    public void printAnswersFromQuestion(){
+        for (Answer ans : this.answers.keySet()){
+            System.out.println(ans.toString() + "[" + ans.getAnswerID() + "]");
+        }
     }
 }

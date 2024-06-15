@@ -3,8 +3,16 @@ import java.io.Serializable;
 public class Answer implements Serializable {
 	private String answer;
 	private boolean correct;
+	private static int answerCounter ;
+	private int answerID;
+	
+	public int getAnswerID() {
+		return answerID;
+	}
+	
 	public Answer(String ans) {
 		this.answer = ans;
+		this.answerID = ++answerCounter;
 		this.correct = false;
 	}
 	public Answer(String ans,boolean correct) {

@@ -3,9 +3,15 @@ import java.io.*;
 import java.util.*;
 
 public class main {
-    public enum QuestionType {open, closed}
+    public static boolean validInputRange(int bottom,int upper,int input){
+        if (input < bottom || input > upper){
+            return false;
+        }
+        return true;
+    }
     public static void printMenu(DataBase mainData,String fileName) throws Exception {
         Scanner s = new Scanner(System.in);
+        Datafacade facade = new Datafacade();
         int input = 0;
         do {
             try {
@@ -32,48 +38,46 @@ public class main {
                         String answer;
                         System.out.println("Enter the answer that will be added to the data:");
                         answer = s.nextLine();
-                        mainData.addAnswerToData(new Answer(answer));
+                        facade.addAnswerToData(answer,mainData);
                         break;
                     case 3:
-                        int indexOfAnswer = 0, indexOfQuestion;
-                        boolean isCorrect;
-                        String inputCorrect;
                         System.out.println("Enter the question number that you would like to edit :");
                         DataBase.printQuestions(mainData.getAllQuestions());
-                        indexOfQuestion = s.nextInt() - 1;
+                        int indexOfQuestion = s.nextInt();
                         s.nextLine();
-                        if (mainData.getAllQuestions()[indexOfQuestion] instanceof OpenQuestion) {
+                        Question selectedQuestion = mainData.getQuestion(indexOfQuestion);
+                        if (selectedQuestion instanceof OpenQuestion) {
                             throw new Exception("You cannot add an answer to a open question");
                         } else {
                             System.out.println("Enter the index of the answer that you would like to add :");
-                            printAnswers(mainData.getAllAnswers());
-                            indexOfAnswer = s.nextInt() - 1;
+                            DataBase.printAnswers(mainData.getAllAnswers());
+                            int indexOfAnswer = s.nextInt();
                             s.nextLine();
-                            if(indexOfAnswer < 0 || indexOfAnswer > mainData.allAnswers.length - 1){
-                                throw new Exception("Enter 1-"+mainData.allAnswers.length);
+                            Answer selectedAnswer = mainData.getAnswer(indexOfAnswer);
+                            if (selectedAnswer == null){
+                                throw new Exception("Index of answer not valid");
                             }
-                            System.out.println("Is this answer Correct ? [Y/N]");
-                            inputCorrect = s.nextLine();
-                            if (inputCorrect.compareToIgnoreCase("y") == 0) {
-                                isCorrect = true;
-                            } else if (inputCorrect.compareToIgnoreCase("n") == 0) {
-                                isCorrect = false;
-                            } else {
-                                throw new Exception("enter Y/N");
+                            System.out.println("Is this answer Correct ? [True/False]");
+                            String inputCorrect = s.nextLine();
+                            boolean isCorrect;
+                            switch (inputCorrect.toLowerCase()){
+                                case "true":
+                                    isCorrect = true;
+                                    break;
+                                case "false":
+                                    isCorrect = false;
+                                    break;
+                                default:
+                                    throw new Exception("Incorrect answer");
+                                    break;
                             }
-
-                            ClosedQuestion selectedQuestion = (ClosedQuestion) mainData.getAllQuestions()[indexOfQuestion];
-                            addAnswerToQuestion(isCorrect, selectedQuestion, mainData.getAllAnswers()[indexOfAnswer]);
+                            facade.addAnswerToQuestion(selectedQuestion.getQuestionID(), selectedAnswer.getAnswerID(), mainData);
                             System.out.println("Answer was added to question successfully");
                         }
                         break;
                     case 4:
-                        int numOfAnswers;
-                        String question;
-
                         System.out.println("Enter the question that you would like to add:");
-                        question = s.nextLine();
-
+                        String question = s.nextLine();
                         System.out.println("What type of question will it be ?");
                         QuestionType[] temp = QuestionType.values();
                         for (int i = 0; i < temp.length; i++) {
@@ -86,45 +90,7 @@ public class main {
                             System.out.println(allDifficulty[i].name());
                         }
                         Difficulty difficulty = Difficulty.valueOf(s.next());
-                        switch (type) {
-                            case closed:
-                                System.out.println("You can add 4 - 8 answers , how many would you like to add ?");
-                                numOfAnswers = s.nextInt();
-                                s.nextLine();
-                                if(numOfAnswers < 4 || numOfAnswers > 8){
-                                    throw new Exception("Enter 4 - 8");
-                                }
-                                Answer[] answersOfQuestion = new Answer[numOfAnswers];
-                                boolean[] correctAnswer = new boolean[numOfAnswers];
-
-                                for (int i = 0; i < numOfAnswers; i++) {
-                                    System.out.println("Select the index of answer you would like to add:");
-                                    printAnswers(mainData.getAllAnswers());
-                                    indexOfAnswer = s.nextInt() - 1;
-                                    s.nextLine();
-                                    answersOfQuestion[i] = mainData.allAnswers[indexOfAnswer];
-                                    System.out.println("Is this answer correct ? [Y/N]");
-                                    inputCorrect = s.nextLine();
-                                    if (inputCorrect.compareToIgnoreCase("y") == 0) {
-                                        correctAnswer[i] = true;
-                                    } else if (inputCorrect.compareToIgnoreCase("n") == 0) {
-                                        correctAnswer[i] = false;
-                                    } else {
-                                        throw new Exception("enter Y/N");
-                                    }
-                                }
-                                Question newClosedQuestion = new ClosedQuestion(question, difficulty, answersOfQuestion, correctAnswer);
-                                mainData.addQuestionToData(newClosedQuestion);
-                                break;
-                            case open:
-                                System.out.println("Enter the answer for that question:");
-                                String openAnswer = s.nextLine();
-                                OpenQuestion newOpenQuestion = new OpenQuestion(question, difficulty, openAnswer);
-                                mainData.addQuestionToData(newOpenQuestion);
-                                System.out.println("Question added successfully");
-                                break;
-                        }
-                        break;
+                        facade.addQuestionToData();
                     case 5:
                         System.out.println("Select the index of question you would like to remove:");
                         printQuestions(mainData.getAllQuestions());
@@ -175,16 +141,7 @@ public class main {
         } while (input != -1);
         mainData.saveDataToFile(fileName);
     }
-    public static int YesOrNoAnswer(String ans){
-        switch (ans){
-            case "Y":
-                return 1;
-            case "N":
-                return 0;
-            default:
-                return -1;
-        }
-    }
+    
     public static void main(String[] args) throws Exception {
         Scanner s = new Scanner(System.in);
         String fileName;

@@ -2,29 +2,18 @@ import java.io.*;
 import java.util.*;
 
 public class DataBase implements Serializable {
-    private HashSet<Answer> allAnswers = new HashSet<>();
-    private HashSet<Question> allQuestions = new HashSet<>();
+    private HashMap<Integer,Answer> allAnswers = new HashMap<>();
+    private HashMap<Integer,Question> allQuestions = new HashMap<>();
     private static DataBase instance;
     private DataBase(String fileName) throws IOException, ClassNotFoundException {
         ObjectInputStream savedFile = new ObjectInputStream(new FileInputStream(fileName+".dat"));
         try{
-            this.allQuestions = (HashSet<Question>) savedFile.readObject();
+            this.allQuestions = (HashMap<Integer,Question>) savedFile.readObject();
         }catch (Exception e){
             savedFile.close();
             return;
         }
         savedFile.close();
-        for (Question qsn : allQuestions){
-            if (qsn instanceof ClosedQuestion){
-                for (int j = 0 ; j < ((ClosedQuestion)allQuestions[i]).getAnswer().length;j++){
-                    if (((ClosedQuestion)allQuestions[i]).getAnswer()[j].toString().equals("More than one is correct") || ((ClosedQuestion)allQuestions[i]).getAnswer()[j].toString().equals("All wrong")){
-                        continue;
-                    }
-                    addAnswerToData(((ClosedQuestion)allQuestions[i]).getAnswer()[j].toString());
-                }
-            }
-
-        }
     }
     public static DataBase getInstance(String fileName) throws IOException, ClassNotFoundException {
         if (DataBase.instance == null){
@@ -37,35 +26,31 @@ public class DataBase implements Serializable {
         savedFile.writeObject(this.allQuestions);
         savedFile.close();
     }
-
-    public void addAnswerToData(Answer answer) {
-        this.allAnswers.add(answer);
-    }
-    public HashSet<Answer> getAllAnswers() {
+    public HashMap<Integer,Answer> getAllAnswers() {
         return allAnswers;
     }
-    public HashSet<Question> getAllQuestions() {
+    public HashMap<Integer,Question> getAllQuestions() {
         return allQuestions;
     }
 
-    public void addQuestionToData(Question q) {
-        this.allQuestions.add(q);
+    public void addQuestionToData(Question qsn) {
+        this.allQuestions.put(qsn.getQuestionID(),qsn);
+    }
+    public void addAnswerToData(Answer answer) {
+        this.allAnswers.put(answer.getAnswerID(),answer);
     }
     public void removeQuestionFromData(int questionNumber) {
-        Iterator<Question> questionIterator = this.allQuestions.iterator();
-        for (Question qsn : this.allQuestions){
-            if (qsn.getQuestionNum() == questionNumber){
-                this.allQuestions.remove(qsn);
-                break;
-            }
-        }
+        this.allQuestions.remove(questionNumber);
     }
-    public static void printQuestions(HashSet<Question> allQuestions) {
+    public void removeAnswerFromData(int answerNumber) {
+        this.allAnswers.remove(answerNumber);
+    }
+    public static void printQuestions(HashMap<Integer,Question> allQuestions) {
         if (allQuestions.size() == 0) {
             System.out.println("There is no questions in the data");
         } else {
-            for (Question qsn : allQuestions) {
-                System.out.println(qsn.getQuestionNum() + ")" + qsn.toString());
+            for (Question qsn : allQuestions.values()) {
+                System.out.println(qsn.getQuestionID() + ")" + qsn.toString());
                 if(qsn instanceof ClosedQuestion){
                     for (Answer ans : ((ClosedQuestion) qsn).getAnswer()) {
                         System.out.println(ans.toString() + " : " + ans.isCorrect() + "\n");
@@ -77,13 +62,21 @@ public class DataBase implements Serializable {
             }
         }
     }
-    public static void printAnswers(HashSet<Answer> allAnswers) {
+    public static void printAnswers(HashMap<Integer,Answer> allAnswers) {
         if (allAnswers.size() == 0) {
             System.out.println("There is no answers in the data\n");
         } else {
-            for (Answer ans : allAnswers) {
+            for (Answer ans : allAnswers.values()) {
                 System.out.println(ans.toString() + "\n");
             }
         }
     }
+    public Question getQuestion(int questionNum){
+        return this.allQuestions.get(questionNum);
+    }
+    
+    public Answer getAnswer(int answerNum){
+        return this.allAnswers.get(answerNum);
+    }
+    
 }

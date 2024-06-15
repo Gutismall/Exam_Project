@@ -19,9 +19,4 @@ public class OpenQuestion extends Question implements Serializable {
 	public String toString(){
 		return super.toString()+answer.toString()+"\n";
 	}
-	
-	@Override
-	public void addAnswerToQuestion(Answer answer) {
-		System.out.println("Cant add answer to open question");
-	}
 }
