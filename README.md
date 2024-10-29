@@ -38,9 +38,6 @@ Automatic Exam Generator is a Java-based application designed to streamline the 
 
 Contributions are welcome! Please fork the repository and create a pull request with your changes.
 
-## License
-
-This project is licensed under the MIT License.
 
 ## Acknowledgements
 
@@ -49,4 +46,4 @@ This project is licensed under the MIT License.
 
 ## Status
 
-**Work in Progress**: This project is actively being developed. New features and improvements are being added regularly.
+**Work in Progress**: This project is actively being developed. New features and improvements are being added regularly. Currently, the use of PostgreSQL to store data is being integrated.
